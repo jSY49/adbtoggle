@@ -1,8 +1,9 @@
 # 디버깅 토글 (com.jsy.adbtoggle)
 
-USB 디버깅(`adb_enabled`)과 무선 디버깅(`adb_wifi_enabled`)을 퀵설정 타일 / 홈 화면 위젯 / 앱 화면에서 한 번에 켜고 끄는 앱.
+개발자 모드(`development_settings_enabled`), 유선 디버깅(`adb_enabled`), 무선 디버깅(`adb_wifi_enabled`)을 퀵설정 타일 / 홈 화면 위젯 / 앱 화면에서 **각각 따로** 켜고 끄는 앱. 앱이 건드리는 설정 키는 이 세 개뿐입니다.
 
-- 둘 중 하나라도 켜져 있으면 "켜짐" → 탭하면 둘 다 끔. 둘 다 꺼져 있으면 둘 다 켬.
+- 타일 3개, 위젯 3개, 앱 화면 버튼 3개가 각각 한 항목만 반대로 바꿉니다.
+- 유선/무선 디버깅을 켤 때 개발자 모드가 꺼져 있으면 먼저 켭니다. 끌 때는 누른 항목만 끕니다.
 - 값을 쓴 뒤 다시 읽어 실제로 바뀌었는지 확인하고, 안 바뀌었으면 토스트로 알림.
 - 선언 권한은 `WRITE_SECURE_SETTINGS` 하나뿐 (INTERNET 없음). 쉘 실행·루팅·접근성 서비스 없음.
 
@@ -25,8 +26,8 @@ adb shell pm grant com.jsy.adbtoggle android.permission.WRITE_SECURE_SETTINGS
 
 ## 타일 / 위젯 추가
 
-- 퀵설정 타일: 알림창을 내려 편집(연필) → "디버깅" 타일을 끌어다 놓기
-- 홈 위젯: 홈 화면 빈 곳 길게 누르기 → 위젯 → "디버깅 토글"
+- 퀵설정 타일: 알림창을 내려 편집(연필) → "개발자 모드" / "유선 디버깅" / "무선 디버깅" 타일을 끌어다 놓기
+- 홈 위젯: 홈 화면 빈 곳 길게 누르기 → 위젯 → 같은 이름의 토글 3종
 
 ## 되돌리는 방법
 
@@ -35,7 +36,7 @@ adb shell pm grant com.jsy.adbtoggle android.permission.WRITE_SECURE_SETTINGS
   ```bash
   adb shell pm revoke com.jsy.adbtoggle android.permission.WRITE_SECURE_SETTINGS
   ```
-- 최악의 경우 설정 → 개발자 옵션에서 직접 USB/무선 디버깅을 켜고 끌 수 있습니다.
+- 개발자 옵션을 끄면 설정의 "개발자 옵션" 메뉴가 사라집니다. 이 앱으로 다시 켜거나, 설정 → 휴대전화 정보 → 빌드 번호를 7번 눌러 켤 수 있습니다.
 
 ## 알아둘 점
 
@@ -50,7 +51,7 @@ adb shell pm grant com.jsy.adbtoggle android.permission.WRITE_SECURE_SETTINGS
 |---|---|
 | `DebugToggle.kt` | 상태 조회/변경, `Settings.Global.putInt` 유일한 호출 위치 |
 | `UiSync.kt` | 토글 + 실패 토스트 + 타일/위젯 동기화 |
-| `ToggleTileService.kt` | 퀵설정 타일 |
-| `ToggleWidgetProvider.kt` | 위젯 화면 갱신 |
+| `ToggleTileServices.kt` | 퀵설정 타일 3종 |
+| `ToggleWidgetProviders.kt` | 위젯 3종 화면 갱신 |
 | `WidgetToggleReceiver.kt` | 위젯 탭 처리 (exported=false) |
-| `MainActivity.kt` | 권한/상태 표시, 토글 버튼, 안내 |
+| `MainActivity.kt` | 권한/상태 표시, 항목별 버튼, 안내 |
