@@ -96,6 +96,19 @@
                 android:resource="@xml/widget_wireless_info" />
         </receiver>
 
+        <receiver
+            android:name=".CombinedWidgetProvider"
+            android:exported="true"
+            android:icon="@drawable/widget_icon_combined"
+            android:label="@string/widget_label_combined">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_combined_info" />
+        </receiver>
+
         <!-- 위젯 탭 전용. 외부 앱이 토글을 유발하지 못하도록 비공개. -->
         <receiver
             android:name=".WidgetToggleReceiver"

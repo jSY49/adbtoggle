@@ -7,6 +7,9 @@
     <string name="label_dev">개발자 모드</string>
     <string name="label_usb">유선 디버깅</string>
     <string name="label_wireless">무선 디버깅</string>
+    <string name="short_dev">개발자</string>
+    <string name="short_usb">유선</string>
+    <string name="short_wireless">무선</string>
 
     <!-- 타일 -->
     <string name="tile_need_permission">권한 필요</string>
@@ -18,6 +21,8 @@
     <string name="widget_desc_dev">개발자 모드를 켜고 끕니다</string>
     <string name="widget_desc_usb">유선(USB) 디버깅을 켜고 끕니다. 개발자 모드가 꺼져 있으면 먼저 켭니다</string>
     <string name="widget_desc_wireless">무선 디버깅을 켜고 끕니다. 개발자 모드가 꺼져 있으면 먼저 켭니다</string>
+    <string name="widget_label_combined">디버깅 3종 모음</string>
+    <string name="widget_desc_combined">개발자 모드, 유선·무선 디버깅을 칸마다 각각 켜고 끕니다</string>
     <string name="widget_on">ON</string>
     <string name="widget_off">OFF</string>
     <string name="widget_need_permission">권한 필요</string>

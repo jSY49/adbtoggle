@@ -44,6 +44,8 @@ object UiSync {
             val ids = manager.getAppWidgetIds(ComponentName(app, provider))
             if (ids.isNotEmpty()) BaseToggleWidgetProvider.update(app, manager, ids, target)
         }
+        val combinedIds = manager.getAppWidgetIds(ComponentName(app, CombinedWidgetProvider::class.java))
+        if (combinedIds.isNotEmpty()) CombinedWidgetProvider.update(app, manager, combinedIds)
     }
 
     /** 타일이 화면에 없어도 시스템이 onStartListening 을 불러 다시 그리게 한다. */
@@ -59,6 +61,14 @@ object UiSync {
             Target.DEV_OPTIONS -> R.string.label_dev
             Target.USB -> R.string.label_usb
             Target.WIRELESS -> R.string.label_wireless
+        },
+    )
+
+    fun shortLabel(context: Context, target: Target): String = context.getString(
+        when (target) {
+            Target.DEV_OPTIONS -> R.string.short_dev
+            Target.USB -> R.string.short_usb
+            Target.WIRELESS -> R.string.short_wireless
         },
     )
 
