@@ -8,17 +8,19 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SwitchCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.jsy.adbtoggle.DebugToggle.Target
 
 class MainActivity : AppCompatActivity() {
+
+    private class Row(val status: TextView, val toggle: SwitchCompat)
 
     private lateinit var permissionStatus: TextView
     private lateinit var grantGroup: View
     private lateinit var stateGroup: View
-    private lateinit var usbStatus: TextView
-    private lateinit var wirelessStatus: TextView
-    private lateinit var toggleButton: Button
+    private lateinit var rows: Map<Target, Row>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,15 +38,19 @@ class MainActivity : AppCompatActivity() {
         permissionStatus = findViewById(R.id.permission_status)
         grantGroup = findViewById(R.id.grant_group)
         stateGroup = findViewById(R.id.state_group)
-        usbStatus = findViewById(R.id.usb_status)
-        wirelessStatus = findViewById(R.id.wireless_status)
-        toggleButton = findViewById(R.id.toggle_button)
+        rows = mapOf(
+            Target.DEV_OPTIONS to Row(findViewById(R.id.dev_status), findViewById(R.id.dev_switch)),
+            Target.USB to Row(findViewById(R.id.usb_status), findViewById(R.id.usb_switch)),
+            Target.WIRELESS to Row(findViewById(R.id.wireless_status), findViewById(R.id.wireless_switch)),
+        )
 
         findViewById<Button>(R.id.copy_button).setOnClickListener { copyGrantCommand() }
-        toggleButton.setOnClickListener {
-            UiSync.toggleWithFeedback(this)
-            UiSync.refreshTile(this)
-            render()
+        for ((target, row) in rows) {
+            row.toggle.setOnClickListener {
+                UiSync.toggleWithFeedback(this, target)
+                UiSync.refreshTile(this)
+                render()
+            }
         }
     }
 
@@ -62,9 +68,11 @@ class MainActivity : AppCompatActivity() {
         if (!granted) return
 
         val state = DebugToggle.readState(this)
-        usbStatus.text = getString(R.string.usb_status, UiSync.onOff(this, state.usbOn))
-        wirelessStatus.text = getString(R.string.wireless_status, UiSync.onOff(this, state.wirelessOn))
-        toggleButton.setText(if (state.anyOn) R.string.button_turn_off else R.string.button_turn_on)
+        for ((target, row) in rows) {
+            val on = state.isOn(target)
+            row.status.text = getString(R.string.status_line, UiSync.label(this, target), UiSync.onOff(this, on))
+            row.toggle.isChecked = on
+        }
     }
 
     private fun copyGrantCommand() {

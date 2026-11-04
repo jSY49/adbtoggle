@@ -4,7 +4,7 @@
     android:height="24dp"
     android:viewportWidth="24"
     android:viewportHeight="24">
-    <!-- 꺼짐: 흐린 USB 심볼 + 사선 -->
+    <!-- 꺼짐: 흐린 심볼 + 사선 -->
     <path
         android:fillAlpha="0.5"
         android:fillColor="#FFFFFFFF"

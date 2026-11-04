@@ -25,10 +25,32 @@
         </activity>
 
         <service
-            android:name=".ToggleTileService"
+            android:name=".DevOptionsTileService"
             android:exported="true"
-            android:icon="@drawable/ic_debug_off"
-            android:label="@string/tile_label"
+            android:icon="@drawable/ic_dev_off"
+            android:label="@string/label_dev"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=".UsbTileService"
+            android:exported="true"
+            android:icon="@drawable/ic_usb_off"
+            android:label="@string/label_usb"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=".WirelessTileService"
+            android:exported="true"
+            android:icon="@drawable/ic_wifi_off"
+            android:label="@string/label_wireless"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
             <intent-filter>
                 <action android:name="android.service.quicksettings.action.QS_TILE" />
@@ -36,15 +58,42 @@
         </service>
 
         <receiver
-            android:name=".ToggleWidgetProvider"
+            android:name=".DevOptionsWidgetProvider"
             android:exported="true"
-            android:label="@string/widget_label">
+            android:icon="@drawable/widget_preview_dev"
+            android:label="@string/widget_label_dev">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/toggle_widget_info" />
+                android:resource="@xml/widget_dev_info" />
+        </receiver>
+
+        <receiver
+            android:name=".UsbWidgetProvider"
+            android:exported="true"
+            android:icon="@drawable/widget_preview_usb"
+            android:label="@string/widget_label_usb">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_usb_info" />
+        </receiver>
+
+        <receiver
+            android:name=".WirelessWidgetProvider"
+            android:exported="true"
+            android:icon="@drawable/widget_preview_wireless"
+            android:label="@string/widget_label_wireless">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_wireless_info" />
         </receiver>
 
         <!-- 위젯 탭 전용. 외부 앱이 토글을 유발하지 못하도록 비공개. -->

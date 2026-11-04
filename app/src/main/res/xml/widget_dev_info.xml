@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
-    android:description="@string/widget_description"
+    android:description="@string/widget_desc_dev"
+    android:previewImage="@drawable/widget_preview_dev"
     android:initialLayout="@layout/widget_toggle"
     android:minWidth="70dp"
     android:minHeight="70dp"

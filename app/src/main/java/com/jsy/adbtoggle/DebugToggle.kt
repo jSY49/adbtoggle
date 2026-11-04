@@ -5,18 +5,26 @@ import android.content.pm.PackageManager
 import android.provider.Settings
 
 /**
- * USB 디버깅(adb_enabled)과 무선 디버깅(adb_wifi_enabled)을 함께 읽고 쓰는 유일한 곳.
- * 이 앱에서 Settings.Global.putInt 는 이 파일의 [writeBoth] 에서만 호출한다.
+ * 개발자 모드(development_settings_enabled), 유선 디버깅(adb_enabled),
+ * 무선 디버깅(adb_wifi_enabled)을 읽고 쓰는 유일한 곳.
+ * 이 앱에서 Settings.Global.putInt 는 이 파일의 [putKey] 에서만 호출한다.
  */
 object DebugToggle {
 
-    private const val KEY_USB = "adb_enabled"
-    private const val KEY_WIRELESS = "adb_wifi_enabled"
+    enum class Target(internal val key: String) {
+        DEV_OPTIONS("development_settings_enabled"),
+        USB("adb_enabled"),
+        WIRELESS("adb_wifi_enabled"),
+    }
+
     private const val PERMISSION = "android.permission.WRITE_SECURE_SETTINGS"
 
-    data class State(val usbOn: Boolean, val wirelessOn: Boolean) {
-        /** 둘 중 하나라도 켜져 있으면 "켜짐"으로 본다. */
-        val anyOn: Boolean get() = usbOn || wirelessOn
+    data class State(val devOptionsOn: Boolean, val usbOn: Boolean, val wirelessOn: Boolean) {
+        fun isOn(target: Target): Boolean = when (target) {
+            Target.DEV_OPTIONS -> devOptionsOn
+            Target.USB -> usbOn
+            Target.WIRELESS -> wirelessOn
+        }
     }
 
     sealed interface Result {
@@ -35,38 +43,37 @@ object DebugToggle {
 
     fun readState(context: Context): State {
         val resolver = context.contentResolver
+        fun read(target: Target) = Settings.Global.getInt(resolver, target.key, 0) == 1
         return State(
-            usbOn = Settings.Global.getInt(resolver, KEY_USB, 0) == 1,
-            wirelessOn = Settings.Global.getInt(resolver, KEY_WIRELESS, 0) == 1,
+            devOptionsOn = read(Target.DEV_OPTIONS),
+            usbOn = read(Target.USB),
+            wirelessOn = read(Target.WIRELESS),
         )
     }
 
-    /** 현재 상태가 켜짐이면 둘 다 끄고, 꺼짐이면 둘 다 켠다. */
-    fun toggle(context: Context): Result = setEnabled(context, enable = !readState(context).anyOn)
+    /** 해당 항목만 반대로 바꾼다. */
+    fun toggle(context: Context, target: Target): Result =
+        setEnabled(context, target, enable = !readState(context).isOn(target))
 
-    fun setEnabled(context: Context, enable: Boolean): Result {
+    fun setEnabled(context: Context, target: Target, enable: Boolean): Result {
         if (!hasPermission(context)) return Result.NoPermission
         try {
-            writeBoth(context, enable)
+            // 디버깅을 켤 때는 개발자 모드가 꺼져 있으면 먼저 켠다.
+            if (enable && target != Target.DEV_OPTIONS && !readState(context).devOptionsOn) {
+                putKey(context, Target.DEV_OPTIONS, 1)
+            }
+            putKey(context, target, if (enable) 1 else 0)
         } catch (e: SecurityException) {
             return Result.NoPermission
         }
         // 기기마다 값이 안 먹힐 수 있으므로 반드시 다시 읽어서 확인한다.
         val after = readState(context)
-        val applied = after.usbOn == enable && after.wirelessOn == enable
+        val applied = after.isOn(target) == enable &&
+            (!enable || target == Target.DEV_OPTIONS || after.devOptionsOn)
         return if (applied) Result.Success(after) else Result.NotApplied(after)
     }
 
-    /** 켤 때는 USB → 무선, 끌 때는 무선 → USB 순서로 쓴다. */
-    private fun writeBoth(context: Context, enable: Boolean) {
-        val resolver = context.contentResolver
-        val value = if (enable) 1 else 0
-        if (enable) {
-            Settings.Global.putInt(resolver, KEY_USB, value)
-            Settings.Global.putInt(resolver, KEY_WIRELESS, value)
-        } else {
-            Settings.Global.putInt(resolver, KEY_WIRELESS, value)
-            Settings.Global.putInt(resolver, KEY_USB, value)
-        }
+    private fun putKey(context: Context, target: Target, value: Int) {
+        Settings.Global.putInt(context.contentResolver, target.key, value)
     }
 }
